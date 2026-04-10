@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SR | SPACE REX SYSTEM</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;900&family=Orbitron:wght@900&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/@solana/web3.js@latest/lib/index.iife.min.js"></script>
+    <style>
+        :root {
+            --sr-gold: #FFD700;
+            --sr-purple: #9945FF;
+            --sr-green: #14f195;
+            --binance-yellow: #F3BA2F;
+            --glass: rgba(255, 255, 255, 0.03);
+            --border: rgba(255, 255, 255, 0.1);
+        }
+
+        body {
+            background-color: #050505;
+            background-image: radial-gradient(at 0% 0%, rgba(153, 69, 255, 0.15) 0, transparent 50%), 
+                              radial-gradient(at 100% 100%, rgba(20, 241, 149, 0.1) 0, transparent 50%);
+            color: white;
+            font-family: 'Inter', sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 40px 20px;
+        }
+
+        .logo-container { text-align: center; margin-bottom: 50px; }
+        .sr-logo {
+            font-family: 'Orbitron', sans-serif;
+            font-size: clamp(3.5rem, 12vw, 6rem);
+            letter-spacing: 2.5rem;
+            background: linear-gradient(to right, var(--sr-gold), var(--sr-purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin: 0;
+            filter: drop-shadow(0 0 30px rgba(255, 215, 0, 0.3));
+        }
+        .tagline { letter-spacing: 0.6rem; color: #888; font-size: 0.75rem; text-transform: uppercase; margin-top: 10px; }
+
+        .bento-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; max-width: 650px; width: 100%; }
+        .bento-item {
+            background: var(--glass);
+            backdrop-filter: blur(25px);
+            border: 1px solid var(--border);
+            border-radius: 32px;
+            padding: 35px;
+            text-align: center;
+            transition: 0.4s ease;
+        }
+        .bento-item:hover { border-color: var(--sr-gold); transform: translateY(-5px); }
+        .full-width { grid-column: span 2; }
+
+        .price-value { font-size: 3.5rem; font-weight: 900; margin: 15px 0; }
+        .live-tag {
+            background: rgba(20, 241, 149, 0.1);
+            color: var(--sr-green);
+            padding: 6px 15px;
+            border-radius: 50px;
+            font-size: 0.75rem;
+            font-weight: 800;
+            display: inline-flex;
+            align-items: center;
+        }
+        .pulse-dot { height: 8px; width: 8px; background: var(--sr-green); border-radius: 50%; margin-right: 8px; animation: pulse 1.5s infinite; }
+        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; } }
+
+        .token-input {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid var(--border);
+            border-radius: 15px;
+            color: white;
+            padding: 15px;
+            width: 60%;
+            text-align: center;
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+            outline: none;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 18px;
+            border-radius: 16px;
+            border: none;
+            font-weight: 900;
+            cursor: pointer;
+            transition: 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-top: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .btn-web3 { background: white; color: black; }
+        .btn-binance { background: var(--binance-yellow); color: black; }
+        .btn-local { background: rgba(255,255,255,0.08); border: 1px solid var(--border); color: white; }
+        
+        .btn img { height: 18px; margin-right: 10px; }
+
+        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); display: flex; justify-content: center; align-items: center; z-index: 1000; backdrop-filter: blur(15px); }
+        .invoice-card { background: #111; padding: 40px; border-radius: 35px; border: 1px solid var(--sr-gold); text-align: center; max-width: 400px; width: 90%; }
+    </style>
+</head>
+<body>
+
+    <div class="logo-container">
+        <h1 class="sr-logo">SR</h1>
+        <div class="tagline">SPACE REX SYSTEM</div>
+    </div>
+
+    <div class="bento-grid">
+        <div class="bento-item full-width">
+            <div class="live-tag"><span class="pulse-dot"></span>LIVE PRICE</div>
+            <div class="price-value">$10.00</div>
+            <input type="number" id="tokenAmount" class="token-input" value="1" min="1">
+            <p style="color: #444; font-size: 0.7rem;">QUANTITY: $SR COINS</p>
+        </div>
+
+        <div class="bento-item">
+            <p style="color: var(--sr-purple); font-size: 0.7rem; font-weight: 900; margin-bottom:15px;">EXCHANGE GATEWAY</p>
+            <button class="btn btn-web3" onclick="buyWithSolana()">Phantom Pay</button>
+            <button class="btn btn-binance" onclick="showBinancePay()">
+                <img src="https://bin.bnbstatic.com/static/images/merchant/binance-pay-logo.svg" alt="Binance">
+                Binance Pay
+            </button>
+        </div>
+
+        <div class="bento-item">
+            <p style="color: var(--sr-gold); font-size: 0.7rem; font-weight: 900; margin-bottom:15px;">LOCAL GATEWAY</p>
+            <button class="btn btn-local" onclick="showGhostInvoice('JazzCash')">JazzCash</button>
+            <button class="btn btn-local" onclick="showGhostInvoice('EasyPaisa')">EasyPaisa</button>
+        </div>
+    </div>
+
+    <script>
+        const MY_WALLET = "YOUR_SOLANA_WALLET_ADDRESS"; 
+        const PRICE_USD = 10;
+        const PKR_RATE = 285;
+
+        async function buyWithSolana() {
+            if (!window.solana) return alert("Install Phantom Wallet");
+            const amount = document.getElementById('tokenAmount').value;
+            const solNeeded = (amount * PRICE_USD) / 150; 
+            
+            try {
+                const resp = await window.solana.connect();
+                const connection = new solanaWeb3.Connection(solanaWeb3.clusterApiUrl('mainnet-beta'));
+                const transaction = new solanaWeb3.Transaction().add(
+                    solanaWeb3.SystemProgram.transfer({
+                        fromPubkey: resp.publicKey,
+                        toPubkey: new solanaWeb3.PublicKey(MY_WALLET),
+                        lamports: Math.floor(solNeeded * solanaWeb3.LAMPORTS_PER_SOL),
+                    })
+                );
+                transaction.feePayer = resp.publicKey;
+                let { blockhash } = await connection.getLatestBlockhash();
+                transaction.recentBlockhash = blockhash;
+                const { signature } = await window.solana.signAndSendTransaction(transaction);
+                alert("Payment Success! Signature: " + signature.slice(0,10));
+            } catch (err) { alert("Failed: " + err.message); }
+        }
+
+        function showBinancePay() {
+            const amount = document.getElementById('tokenAmount').value;
+            const totalUSD = amount * PRICE_USD;
+            
+            const overlay = document.createElement('div');
+            overlay.className = 'overlay';
+            overlay.innerHTML = `
+                <div class="invoice-card">
+                    <img src="https://bin.bnbstatic.com/static/images/merchant/binance-pay-logo.svg" style="height:30px; margin-bottom:20px;">
+                    <h2 style="color:var(--binance-yellow); font-family:'Orbitron';">BINANCE GATEWAY</h2>
+                    <p style="color:#666; font-size:0.8rem;">Direct transfer for ${amount} $SR</p>
+                    <div style="font-size:2.5rem; margin:20px 0; font-weight:900;">$${totalUSD}.00 <span style="font-size:1rem; color:#444;">USDT</span></div>
+                    
+                    <div style="background:rgba(255,255,255,0.03); padding:20px; border-radius:20px; margin-bottom:20px; border:1px solid #f3ba2f;">
+                        <p style="font-size:0.75rem; color:var(--binance-yellow);">✔ ZERO GAS FEES</p>
+                        <p style="font-size:0.7rem; color:#888; margin-top:10px;">Connect to your Binance Merchant account or use ID to complete.</p>
+                    </div>
+
+                    <button onclick="window.open('https://pay.binance.com/', '_blank')" class="btn" style="background:var(--binance-yellow); color:black;">OPEN BINANCE APP</button>
+                    <p onclick="this.parentElement.parentElement.remove()" style="margin-top:15px; cursor:pointer; font-size:0.7rem; color:#444;">BACK</p>
+                </div>
+            `;
+            document.body.appendChild(overlay);
+        }
+
+        function showGhostInvoice(method) {
+            const amount = document.getElementById('tokenAmount').value;
+            const totalPKR = amount * PRICE_USD * PKR_RATE;
+            const secret = "92" + "3003156852"; 
+            const text = encodeURIComponent(`I want to buy ${amount} $SR Tokens for ${totalPKR.toLocaleString()} PKR via ${method}. Send ID.`);
+            const waLink = `https://wa.me/${secret}?text=${text}`;
+
+            const overlay = document.createElement('div');
+            overlay.className = 'overlay';
+            overlay.innerHTML = `
+                <div class="invoice-card">
+                    <h2 style="color:var(--sr-gold); font-family:'Orbitron';">GHOST GATEWAY</h2>
+                    <p style="color:#666; font-size:0.8rem;">Secure local payment for ${amount} $SR</p>
+                    <div style="font-size:2.5rem; margin:20px 0; font-weight:900;">${totalPKR.toLocaleString()} PKR</div>
+                    <button onclick="window.open('${waLink}', '_blank')" class="btn" style="background:var(--sr-gold); color:black;">CONTINUE TO PAYMENT</button>
+                    <p onclick="this.parentElement.parentElement.remove()" style="margin-top:15px; cursor:pointer; font-size:0.7rem; color:#444;">BACK TO SITE</p>
+                </div>
+            `;
+            document.body.appendChild(overlay);
+        }
+    </script>
+</body>
+</html>
